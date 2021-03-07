@@ -51,7 +51,8 @@ def _construct_key(previous_key, separator, new_key, replace_separators=None):
 def flatten(
         nested_dict,
         separator="_",
-        root_keys_to_ignore=None,
+        root_keys_to_ignore=set(),
+        new_key_index_field=None,
         replace_separators=None):
     """
     Flattens a dictionary with nested structure to a dictionary with no
@@ -63,6 +64,7 @@ def flatten(
     :param nested_dict: dictionary we want to flatten
     :param separator: string to separate dictionary keys by
     :param root_keys_to_ignore: set of root keys to ignore from flattening
+    :param new_key_index_field: the field to use in the nested items as the index in the new key defaults to numeric index if does not exist
     :param str replace_separators: Replace separators within keys
     :return: flattened dictionary
     """
@@ -103,13 +105,13 @@ def flatten(
                             object_key,
                             replace_separators=replace_separators))
         elif isinstance(object_, (list, set, tuple)):
-            for index, item in enumerate(object_):
+            for _index, item in enumerate(object_):
                 _flatten(
                     item,
                     _construct_key(
                         key,
                         separator,
-                        index,
+                        _index if not new_key_index_field or (not new_key_index_field in item.keys()) else item[new_key_index_field],
                         replace_separators=replace_separators))
         # Anything left take as is
         else:
